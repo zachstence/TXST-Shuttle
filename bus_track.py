@@ -4,6 +4,37 @@ import time
 from geopy.distance import geodesic
 from datetime import datetime
 
+# maybe have more complicated functions to calculate velocity based off more points
+# for a higher accuracy? for now just going to do last 2
+
+
+
+# returns the velocity of one bus based on its history of position and time
+# only considers 2 most recent history points
+def calcVelocity2(bus_history):
+  if len(bus_history) >= 2:
+    p1 = (bus_history[-2]['lat'], bus_history[-2]['lon'])
+    p2 = (bus_history[-1]['lat'], bus_history[-1]['lon'])
+    d = geodesic(p1, p2).miles
+
+    t1 = bus_history[-2]['lastUpdate']
+    t2 = bus_history[-1]['lastUpdate']
+    t = t2 - t1
+
+    if t != 0:
+      return (d / t) * 60 * 60
+    else:
+      return None
+
+
+
+
+
+
+
+
+
+
 HISTORY_LENGTH = 2
 
 # Post Road (23) is Route 639 in TXST DoubleMap API request
@@ -19,52 +50,20 @@ while True:
   for bus_info in buses_info:
     bus_id = bus_info['id']
 
-    # append new history
+    # append new history or start a list with it
     if bus_id in history.keys():
       history[bus_id].append(bus_info)
       # if full, clip oldest
       if len(history[bus_id]) > HISTORY_LENGTH:
         history[bus_id] = history[bus_id][1:]
-
     else:
       history[bus_id] = [bus_info]
 
-  # now calculate velocity = change distance / change time
-  for bus in history.values():
-    try:
-      p1 = (bus[-2]['lat'], bus[-2]['lon'])
-      p2 = (bus[-1]['lat'], bus[-1]['lon'])
-      d = geodesic(p1, p2).miles
-  
-      t1 = bus[-2]['lastUpdate']
-      t2 = bus[-1]['lastUpdate']
-      t = t2 - t1
+  # print velocities
+  for bus_history in history.values():
+    print("{}\t {}".format(bus_history[0]['id'], calcVelocity2(bus_history)))
 
-      # calculate velocity in mph
-      if t != 0:
-        v = (d / t) * 60 * 60
-      else:
-        v = None
-      print("{}\t {} {} {}".format(bus[0]['id'], d, t, v))
-
-    except IndexError:
-      pass
   print()
-
-  # print all dict info
-  # print(json.dumps(history, indent=2))
-
-  # print only time, lat and lon for one bus
-  # try:
-  #   for i in range(HISTORY_LENGTH):
-  #     t = datetime.fromtimestamp(history[417][i]['lastUpdate']).strftime('%H:%M:%S')
-  #     lat = history[417][i]['lat']
-  #     lon = history[417][i]['lon']
-  #     print(t, lat, lon)
-  # except:
-  #   pass
-  # print()
-
 
 
 
