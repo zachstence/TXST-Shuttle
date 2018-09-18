@@ -2,9 +2,10 @@ import requests
 import json
 import time
 from geopy.distance import geodesic
+import routes
 
 
-def calc_velocity_2(bus_hist):
+def get_velocity(bus_hist):
     """
     Calculates the approximate velocity of a bus using (d2-d1)/(t2-t1)
     :param bus_hist: A list of bus dictionaries containing info about the bus's position, bearing, etc
@@ -31,11 +32,6 @@ def calc_velocity_2(bus_hist):
 
 
 HISTORY_LENGTH = 2
-
-# Post Road (23) is Route 639 in TXST DoubleMap API request
-ROUTE_POST_ROAD = 639
-
-
 history = {}
 # history = {
 #     bus_id : bus_history,
@@ -60,7 +56,7 @@ while True:
     # Poll API and extract wanted information
     r = requests.get('http://txstate.doublemap.com/map/v2/buses')
     buses_info = json.loads(r.text)
-    buses_info = [bus for bus in buses_info if bus['route'] == ROUTE_POST_ROAD]
+    buses_info = [bus for bus in buses_info if bus['route'] == routes.R21_OFFCAMPUS_BLANCO_RIVER]
 
     for bus_info in buses_info:
         bus_id = bus_info['id']
@@ -76,12 +72,12 @@ while True:
 
     # Print bus velocities
     for bus_history in history.values():
-        calc_velocity_2(bus_history)
+        get_velocity(bus_history)
         print('id: %s   head: %3d   speed: ' % (bus_history[-1]['id'],  bus_history[-1]['heading']), end='')
         try:
             print('%5.2f' % bus_history[-1]['lastVel'])
         except KeyError:
-            print(None)
+            print('')
 
     print()
 
