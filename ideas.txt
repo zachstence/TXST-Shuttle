@@ -1,6 +1,24 @@
-- Collect data about routes (how long between stops, how long do they stop at each stop, etc)
-  - when heading is 0 -> bus is stopped (might want to check off a velocity calculation to make sure)
+- Collect data about routes/buses
+    - How long between stops/for one full run of the route
+        - Average over different periods (all time, day, all time at this time of day, etc)
+    - How long do they stop at each stop
+        - When heading is 0 -> bus is stopped (might want to check off a velocity calculation to make sure)
+    - Total distance travelled by each bus/all buses
+    - Total time driven by each bus/all buses
+    - Total gas used by a bus/all buses (and show cost of all that gas based off realtime prices or just average price?)
+    - Top speed of each bus (and if they speed)
+    - How many people use our service
+    - Record when buses don't stop at railroad tracks
+- Have more complicated functions to calculate velocity based off more d, t points or even previous known velocity for a higher accuracy? for now just going to do last 2
 - Predict if there is a train based off of if a bus is stopped for a long period of time at the tracks
-- Predict what street they are on and what direction they're travelling based off of latitude, longitude, and bearing
-- Make a web app that shows all of the above and more stuff. That way anybody can easily access and use it!
-- Maybe have more complicated functions to calculate velocity based off more d, t points  or even previous known velocity for a higher accuracy? for now just going to do last 2
+- Web app
+    - Show lat, lon, speed, heading (N, NE, E, SE, ...), is stopped, last stop, time to next stop, what street bus is on, etc
+        - Acceleration of bus? Could use to detect when a driver slams on their brakes
+        - Gs experiences when turning?
+    - Map like on TXST app or DoubleMap website, maybe could make some of our own design decisions
+    - How is traffic? (aka are buses running faster or slower than usual)
+    - Have all data we have collected easily downloadable for others to see and use (include a nice data summary page as well)
+    - Allow for notifications if the bus is near a stop set by the user
+    - Place for suggestions on how we can improve web app
+- See what other buses DoubleMap provides service for, do the same thing for their system
+- After all that, mobile app???
