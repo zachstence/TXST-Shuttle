@@ -7,9 +7,8 @@ import routes
 
 def get_velocity(bus_hist):
     """
-    Calculates the approximate velocity of a bus using (d2-d1)/(t2-t1)
+    Calculates the approximate velocity of a bus using (d2-d1)/(t2-t1) and updates the history dict passed
     :param bus_hist: A list of bus dictionaries containing info about the bus's position, bearing, etc
-    :return: The velocity of the bus in mph, None if t2-t1 == 0
     """
     if len(bus_hist) >= 2:
         p1 = (bus_hist[-2]['lat'], bus_hist[-2]['lon'])
@@ -32,10 +31,10 @@ def get_velocity(bus_hist):
 
 
 HISTORY_LENGTH = 2
-history = {}
-# history = {
-#     bus_id : bus_history,
-#     bus_id : bus_history,
+all_histories = {}
+# all_histories = {
+#     bus_id : [list of bus_historys],
+#     bus_id : [list of bus_historys],
 #     ...
 # }
 #
@@ -62,16 +61,16 @@ while True:
         bus_id = bus_info['id']
 
         # Append new history or start a list
-        if bus_id in history.keys():
-            history[bus_id].append(bus_info)
+        if bus_id in all_histories.keys():
+            all_histories[bus_id].append(bus_info)
             # If full, clip the oldest entry
-            if len(history[bus_id]) > HISTORY_LENGTH:
-                history[bus_id] = history[bus_id][1:]
+            if len(all_histories[bus_id]) > HISTORY_LENGTH:
+                all_histories[bus_id] = all_histories[bus_id][1:]
         else:
-            history[bus_id] = [bus_info]
+            all_histories[bus_id] = [bus_info]
 
     # Print bus velocities
-    for bus_history in history.values():
+    for bus_history in all_histories.values():
         get_velocity(bus_history)
         print('id: %s   head: %3d   speed: ' % (bus_history[-1]['id'],  bus_history[-1]['heading']), end='')
         try:
@@ -83,6 +82,3 @@ while True:
 
     # Wait 3 seconds between polling API, doesn't update any faster
     time.sleep(3)
-
-
-
