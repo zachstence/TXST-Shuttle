@@ -3,3 +3,4 @@
 - Predict if there is a train based off of if a bus is stopped for a long period of time at the tracks
 - Predict what street they are on and what direction they're travelling based off of latitude, longitude, and bearing
 - Make a web app that shows all of the above and more stuff. That way anybody can easily access and use it!
+- Maybe have more complicated functions to calculate velocity based off more d, t points  or even previous known velocity for a higher accuracy? for now just going to do last 2

@@ -3,9 +3,6 @@ import json
 import time
 from geopy.distance import geodesic
 
-# maybe have more complicated functions to calculate velocity based off more points
-# for a higher accuracy? for now just going to do last 2
-
 
 def calc_velocity_2(bus_hist):
     """
@@ -22,10 +19,15 @@ def calc_velocity_2(bus_hist):
         t2 = bus_hist[-1]['lastUpdate']
         t = t2 - t1
 
+        # Only update velocity if it exists, otherwise use previous
         if t != 0:
-            return (d / t) * 60 * 60
+            bus_hist[-1]['lastVel'] = (d / t) * 60 * 60
         else:
-            return None
+            # If lastVel field doesn't exist yet, just skip
+            try:
+                bus_hist[-1]['lastVel'] = bus_hist[-2]['lastVel']
+            except KeyError:
+                pass
 
 
 HISTORY_LENGTH = 2
@@ -35,6 +37,25 @@ ROUTE_POST_ROAD = 639
 
 
 history = {}
+# history = {
+#     bus_id : bus_history,
+#     bus_id : bus_history,
+#     ...
+# }
+#
+# bus_history = {
+#     'id'         : 3 digit ID,
+#     'name'       : id as a string (generally),
+#     'lat'        : latitude of bus,
+#     'lon'        : longitude of bus,
+#     'heading'    : 0-360 value: 0=stopped, 360=north,
+#     'route'      : route id the bus is currently driving,
+#     'lastStop'   : ID of the last stop the bus was at,
+#     'fields'     : extra information,
+#     'lastUpdate' : unix timestamp when information was last updated,
+#     'capacity'   : # of passengers the bus can hold,
+#     'load'       : # of passengers on the bus (rarely used)
+# }
 while True:
     # Poll API and extract wanted information
     r = requests.get('http://txstate.doublemap.com/map/v2/buses')
@@ -55,7 +76,12 @@ while True:
 
     # Print bus velocities
     for bus_history in history.values():
-        print("{}\t {}".format(bus_history[0]['id'], calc_velocity_2(bus_history)))
+        calc_velocity_2(bus_history)
+        print('id: %s   head: %3d   speed: ' % (bus_history[-1]['id'],  bus_history[-1]['heading']), end='')
+        try:
+            print('%5.2f' % bus_history[-1]['lastVel'])
+        except KeyError:
+            print(None)
 
     print()
 
